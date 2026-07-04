@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>ChocoHub · Web Miner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --radius-xl: 30px;
+            --radius-lg: 24px;
+            --radius-md: 18px;
+            --radius-pill: 999px;
+
+            --accent-yellow: #FFD60A;
+            --accent-orange: #FF9F0A;
+            --accent-blue: #0A84FF;
+            --accent-pink: #FF375F;
+            --accent-green: #32D74B;
+            --accent-cyan: #64D2FF;
+
+            --ease-liquid: cubic-bezier(.22,1,.36,1);
+        }
+
+        html[data-theme="dark"] {
+            --bg-base: #07060A;
+            --bg-base-2: #0B0910;
+            --text-primary: #F3ECDF;
+            --text-secondary: #9A93A6;
+            --text-tertiary: #5F5A6D;
+
+            --glass-bg: rgba(255,255,255,0.055);
+            --glass-bg-strong: rgba(255,255,255,0.09);
+            --glass-border: rgba(255,255,255,0.14);
+            --glass-highlight: rgba(255,255,255,0.22);
+            --glass-shadow: rgba(0,0,0,0.55);
+
+            --terminal-bg: #050608;
+            --terminal-border: rgba(255,255,255,0.08);
+
+            --blob-opacity: 0.55;
+            --blob-blur: 70px;
+            --input-track: rgba(255,255,255,0.08);
+        }
+
+        html[data-theme="light"] {
+            --bg-base: #EFEFF6;
+            --bg-base-2: #F6F5FB;
+            --text-primary: #1B1A22;
+            --text-secondary: #5B5766;
+            --text-tertiary: #8B879A;
+
+            --glass-bg: rgba(255,255,255,0.5);
+            --glass-bg-strong: rgba(255,255,255,0.72);
+            --glass-border: rgba(255,255,255,0.9);
+            --glass-highlight: rgba(255,255,255,0.95);
+            --glass-shadow: rgba(31,32,71,0.14);
+
+            --terminal-bg: #14141C;
+            --terminal-border: rgba(255,255,255,0.08);
+
+            --blob-opacity: 0.5;
+            --blob-blur: 80px;
+            --input-track: rgba(0,0,0,0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            background: var(--bg-base);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 1.5rem 1rem 3rem;
+            overflow-x: hidden;
+            transition: background-color .6s var(--ease-liquid), color .5s var(--ease-liquid);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ---------- Floating abstract background art ---------- */
+        .bg-blobs {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            overflow: hidden;
+            filter: blur(var(--blob-blur)) saturate(160%);
+            opacity: var(--blob-opacity);
+            transition: opacity .6s var(--ease-liquid);
+            pointer-events: none;
+        }
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            will-change: transform;
+        }
+        .blob-yellow {
+            width: 48vw; height: 48vw;
+            top: -14%; left: -10%;
+            background: radial-gradient(circle at 40% 40%, var(--accent-yellow) 0%, transparent 72%);
+            animation: float1 24s var(--ease-liquid) infinite alternate;
+        }
+        .blob-blue {
+            width: 55vw; height: 55vw;
+            bottom: -22%; right: -14%;
+            background: radial-gradient(circle at 60% 60%, var(--accent-blue) 0%, transparent 72%);
+            animation: float2 30s var(--ease-liquid) infinite alternate;
+        }
+        .blob-pink {
+            width: 40vw; height: 40vw;
+            top: 18%; right: 8%;
+            background: radial-gradient(circle at 50% 50%, var(--accent-pink) 0%, transparent 72%);
+            animation: float3 20s var(--ease-liquid) infinite alternate;
+        }
+        .blob-orange {
+            width: 38vw; height: 38vw;
+            bottom: 2%; left: 22%;
+            background: radial-gradient(circle at 50% 50%, var(--accent-orange) 0%, transparent 72%);
+            animation: float4 26s var(--ease-liquid) infinite alternate;
+        }
+        @keyframes float1 {
+            0%   { transform: translate(0,0) scale(1) rotate(0deg); }
+            50%  { transform: translate(6vw,8vh) scale(1.12) rotate(20deg); }
+            100% { transform: translate(-4vw,4vh) scale(0.95) rotate(-15deg); }
+        }
+        @keyframes float2 {
+            0%   { transform: translate(0,0) scale(1); }
+            50%  { transform: translate(-7vw,-6vh) scale(1.1); }
+            100% { transform: translate(3vw,-9vh) scale(0.92); }
+        }
+        @keyframes float3 {
+            0%   { transform: translate(0,0) scale(1); }
+            50%  { transform: translate(-5vw,7vh) scale(0.9); }
+            100% { transform: translate(6vw,3vh) scale(1.15); }
+        }
+        @keyframes float4 {
+            0%   { transform: translate(0,0) scale(1); }
+            50%  { transform: translate(5vw,-5vh) scale(1.08); }
+            100% { transform: translate(-6vw,-2vh) scale(0.94); }
+        }
+        .grain {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.035;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            mix-blend-mode: overlay;
+        }
+
+        /* ---------- Glass primitive ---------- */
+        .glass {
+            position: relative;
+            background: var(--glass-bg);
+            backdrop-filter: blur(26px) saturate(180%);
+            -webkit-backdrop-filter: blur(26px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 10px 34px var(--glass-shadow), inset 0 1px 0 var(--glass-highlight);
+            transition: background-color .5s var(--ease-liquid), border-color .5s var(--ease-liquid), box-shadow .5s var(--ease-liquid), transform .25s var(--ease-liquid);
+            overflow: hidden;
+        }
+        .glass::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(130deg, rgba(255,255,255,0.22), transparent 45%);
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        .glass-pill {
+            border-radius: var(--radius-pill) !important;
+        }
+
+        a { color: inherit; }
+
+        /* ---------- App shell ---------- */
+        .app-shell {
+            max-width: 1180px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+            padding: 14px 22px;
+            margin-bottom: 1.6rem;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .brand-icon {
+            font-size: 26px;
+            filter: drop-shadow(0 2px 6px rgba(255,159,10,0.5));
+        }
+        .brand h1 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--accent-yellow), var(--accent-orange) 45%, var(--accent-pink));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .brand-sub {
+            font-size: 0.68rem;
+            color: var(--text-tertiary);
+            font-family: 'Space Mono', monospace;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .topbar-widgets {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .clock-widget {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            padding: 6px 16px;
+            line-height: 1.15;
+        }
+        .clock-widget .time {
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: 0.95rem;
+            letter-spacing: 0.03em;
+        }
+        .clock-widget .date {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+        }
+
+        /* Theme toggle switch */
+        .theme-toggle {
+            appearance: none;
+            border: none;
+            background: none;
+            cursor: pointer;
+            padding: 0;
+        }
+        .toggle-track {
+            width: 58px;
+            height: 32px;
+            border-radius: var(--radius-pill);
+            background: linear-gradient(135deg, #2b2540, #171425);
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            padding: 3px;
+            transition: background .45s var(--ease-liquid);
+            position: relative;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.4);
+        }
+        html[data-theme="light"] .toggle-track {
+            background: linear-gradient(135deg, #FFE28A, #FFB347);
+        }
+        .toggle-thumb {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: translateX(0);
+            transition: transform .45s var(--ease-liquid);
+        }
+        html[data-theme="light"] .toggle-thumb { transform: translateX(26px); }
+        .toggle-thumb svg { width: 15px; height: 15px; }
+
+        .back-link {
+            padding: 9px 20px;
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.82rem;
+            transition: color .2s, transform .2s;
+        }
+        .back-link:hover { color: var(--accent-orange); transform: translateY(-1px); }
+
+        /* ---------- Layout grid ---------- */
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.4rem;
+        }
+        .side-col {
+            display: flex;
+            flex-direction: column;
+            gap: 1.4rem;
+        }
+
+        @media (min-width: 900px) {
+            .layout-grid {
+                grid-template-columns: minmax(0, 1fr) 300px;
+                align-items: start;
+            }
+            .side-col { position: sticky; top: 1.5rem; }
+        }
+
+        /* ---------- Stats ---------- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 1.4rem;
+        }
+        .stat-card {
+            padding: 1.1rem 0.8rem;
+            text-align: center;
+        }
+        .stat-value {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-orange), var(--accent-pink));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 6px;
+        }
+        .stat-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            color: var(--text-tertiary);
+            font-weight: 600;
+        }
+
+        /* ---------- Boost card ---------- */
+        .boost-card {
+            padding: 1.4rem;
+            text-align: center;
+        }
+        .boost-card.active {
+            border-color: rgba(255,159,10,0.55);
+            box-shadow: 0 0 0 1px rgba(255,159,10,0.25), 0 12px 34px var(--glass-shadow);
+        }
+        .boost-title {
+            font-size: 0.95rem;
+            font-weight: 800;
+            margin-bottom: 6px;
+            background: linear-gradient(135deg, var(--accent-yellow), var(--accent-orange));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .boost-sub {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            margin-bottom: 14px;
+            line-height: 1.4;
+        }
+        .boost-btn {
+            width: 100%;
+            border: none;
+            padding: 13px 18px;
+            border-radius: var(--radius-pill);
+            font-weight: 700;
+            font-size: 0.82rem;
+            cursor: pointer;
+            font-family: inherit;
+            color: #14110A;
+            background: linear-gradient(135deg, var(--accent-yellow), var(--accent-orange));
+            box-shadow: 0 6px 18px rgba(255,159,10,0.35);
+            transition: transform .2s var(--ease-liquid), filter .2s, opacity .2s;
+        }
+        .boost-btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.06); }
+        .boost-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+        .boost-status {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.68rem;
+            color: var(--text-secondary);
+            margin-top: 12px;
+            line-height: 1.5;
+        }
+        .boost-status.active { color: var(--accent-green); }
+
+        /* ---------- Widget card (side) ---------- */
+        .widget-card {
+            padding: 1.2rem 1.3rem;
+        }
+        .widget-card .greeting {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .widget-card .greeting-sub {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            margin-bottom: 14px;
+        }
+        .mini-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            padding: 7px 0;
+            border-top: 1px solid var(--glass-border);
+        }
+        .mini-row:first-of-type { border-top: none; }
+        .mini-row .dot-status {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--accent-green);
+            box-shadow: 0 0 8px var(--accent-green);
+            display: inline-block;
+            margin-right: 6px;
+        }
+
+        /* ---------- Job card ---------- */
+        .job-card {
+            padding: 1.5rem;
+            margin-bottom: 1.4rem;
+            transition: all .3s var(--ease-liquid);
+        }
+        .job-card.mining {
+            border-color: rgba(255,159,10,0.5);
+            box-shadow: 0 0 0 1px rgba(255,159,10,0.2), 0 0 30px rgba(255,159,10,0.18), inset 0 1px 0 var(--glass-highlight);
+        }
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .job-id {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            background: var(--glass-bg-strong);
+            padding: 5px 14px;
+            border-radius: var(--radius-pill);
+            color: var(--accent-orange);
+            border: 1px solid var(--glass-border);
+        }
+        .reward-badge {
+            background: rgba(50,215,75,0.12);
+            color: var(--accent-green);
+            padding: 5px 14px;
+            border-radius: var(--radius-pill);
+            font-size: 0.72rem;
+            font-weight: 700;
+            border: 1px solid rgba(50,215,75,0.25);
+        }
+        .difficulty-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        .progress-bar-bg {
+            height: 8px;
+            background: var(--input-track);
+            border-radius: var(--radius-pill);
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-yellow), var(--accent-orange) 50%, var(--accent-pink));
+            width: 0%;
+            transition: width .3s ease;
+            border-radius: var(--radius-pill);
+            box-shadow: 0 0 12px rgba(255,159,10,0.55);
+        }
+
+        /* ---------- Control panel & buttons ---------- */
+        .control-panel {
+            padding: 1.5rem;
+            margin-bottom: 1.4rem;
+        }
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 1.1rem;
+        }
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: var(--radius-pill);
+            font-weight: 700;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: transform .2s var(--ease-liquid), filter .2s, opacity .2s;
+            border: none;
+            font-family: inherit;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-pink));
+            color: #fff;
+            box-shadow: 0 8px 20px rgba(10,132,255,0.35);
+        }
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            filter: brightness(1.07);
+        }
+        .btn-secondary {
+            background: rgba(255,55,95,0.1);
+            border: 1px solid rgba(255,55,95,0.45);
+            color: var(--accent-pink);
+        }
+        .btn-secondary:hover:not(:disabled) {
+            background: rgba(255,55,95,0.2);
+        }
+        .btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ---------- Terminal console ---------- */
+        .terminal-window {
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid var(--terminal-border);
+            background: var(--terminal-bg);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+        .terminal-titlebar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01));
+            border-bottom: 1px solid var(--terminal-border);
+        }
+        .term-dot { width: 11px; height: 11px; border-radius: 50%; }
+        .term-dot.red { background: #FF5F57; }
+        .term-dot.yellow { background: #FEBC2E; }
+        .term-dot.green { background: #28C840; }
+        .terminal-title {
+            margin-left: 8px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.68rem;
+            color: var(--text-tertiary);
+            letter-spacing: 0.03em;
+        }
+        .console {
+            background: transparent;
+            padding: 12px 14px;
+            height: 190px;
+            overflow-y: auto;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.72rem;
+            line-height: 1.6;
+        }
+        .console::-webkit-scrollbar { width: 6px; }
+        .console::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+        .log-line {
+            padding: 2px 0;
+            color: var(--accent-green);
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .log-info { color: var(--accent-cyan); }
+        .log-warn { color: var(--accent-yellow); }
+        .log-err  { color: var(--accent-pink); }
+        .log-win  { color: var(--accent-green); font-weight: 700; }
+
+        /* ---------- Toast ---------- */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background: var(--glass-bg-strong);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            padding: 13px 26px;
+            border-radius: var(--radius-pill);
+            font-weight: 700;
+            font-size: 0.85rem;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity .3s var(--ease-liquid), transform .3s var(--ease-liquid);
+            pointer-events: none;
+            box-shadow: 0 10px 30px var(--glass-shadow);
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.success { border-color: var(--accent-green); color: var(--accent-green); }
+        .toast.error { border-color: var(--accent-pink); color: var(--accent-pink); }
+
+        /* ---------- Ad sidebar (behavior classes kept, restyled) ---------- */
+        .ad-sidebar {
+            position: fixed;
+            top: 50%;
+            right: 8px;
+            transform: translateY(-50%);
+            z-index: 9998;
+            width: 150px;
+            text-align: center;
+            font-size: 0;
+            display: none;
+        }
+        .ad-sidebar.visible { display: block; }
+        .ad-sidebar input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .ad-sidebar .ad-inner {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: 0 10px 30px var(--glass-shadow);
+        }
+        .ad-sidebar .close-btn {
+            position: absolute;
+            bottom: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(248, 248, 249, 0.85);
+            border-radius: 6px;
+            padding: 4px;
+            cursor: pointer;
+            z-index: 99999;
+            line-height: 0;
+        }
+        .ad-sidebar .close-btn svg {
+            display: block;
+            width: 16px;
+            height: 16px;
+            fill: #000;
+        }
+        #aadsstickymqfltshv:checked ~ .ad-inner,
+        #aadsstickymqfltshv:checked ~ .close-btn {
+            display: none;
+        }
+        .ad-frame-link {
+            display: inline-block;
+            font-size: 13px;
+            color: #263238;
+            padding: 4px 10px;
+            background: #F8F8F9;
+            text-decoration: none;
+        }
+        .ad-iframe {
+            border: 0;
+            padding: 0;
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            margin: 0 auto;
+            display: block;
+        }
+
+        /* ---------- Responsive ---------- */
+        @media (max-width: 768px) {
+            body { padding: 1rem 0.8rem 2.5rem; }
+            .topbar { padding: 12px 16px; }
+            .clock-widget { align-items: flex-start; }
+            .ad-sidebar.visible { position: static; transform: none; width: 100%; max-width: 680px; margin: 1.4rem auto 0; padding: 0; font-size: 0; }
+            .ad-sidebar .ad-inner { width: 100%; }
+            .ad-sidebar .close-btn { display: none; }
+        }
+        @media (max-width: 560px) {
+            .stats-grid { gap: 8px; }
+            .stat-value { font-size: 1.1rem; }
+            .job-header { flex-direction: column; align-items: flex-start; }
+            .topbar-widgets { width: 100%; justify-content: space-between; }
+            .clock-widget { align-items: flex-start; padding: 6px 4px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .blob { animation: none !important; }
+            * { transition-duration: 0.01ms !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-blobs" aria-hidden="true">
+    <div class="blob blob-yellow"></div>
+    <div class="blob blob-blue"></div>
+    <div class="blob blob-pink"></div>
+    <div class="blob blob-orange"></div>
+</div>
+<div class="grain" aria-hidden="true"></div>
+
+<div class="app-shell">
+
+    <header class="topbar glass">
+        <div class="brand">
+            <span class="brand-icon">⛏️</span>
+            <div>
+                <h1>Web Miner</h1>
+                <div class="brand-sub">ChocoHub</div>
+            </div>
+        </div>
+        <div class="topbar-widgets">
+            <div class="clock-widget">
+                <span class="time" id="liveClock">00:00:00</span>
+                <span class="date" id="liveDate">—</span>
+            </div>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle day and night mode" title="Toggle theme">
+                <span class="toggle-track">
+                    <span class="toggle-thumb">
+                        <svg id="themeIcon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" stroke="#FF9F0A" stroke-width="2" stroke-linejoin="round"/>
+                        </svg>
+                    </span>
+                </span>
+            </button>
+            <a href="/" class="back-link glass glass-pill">← Dashboard</a>
+        </div>
+    </header>
+
+    <div class="layout-grid">
+        <div class="main-col">
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card glass">
+                    <div class="stat-value" id="hashrateValue">0 H/s</div>
+                    <div class="stat-label">Hashrate</div>
+                </div>
+                <div class="stat-card glass">
+                    <div class="stat-value" id="totalHashesValue">0</div>
+                    <div class="stat-label">Total Hashes</div>
+                </div>
+                <div class="stat-card glass">
+                    <div class="stat-value" id="uptimeValue">0s</div>
+                    <div class="stat-label">Session Time</div>
+                </div>
+            </div>
+
+            <!-- Current job -->
+            <div class="job-card glass" id="jobCard">
+                <div class="job-header">
+                    <span class="job-id" id="jobId">No active job</span>
+                    <span class="reward-badge" id="rewardBadge">— CC</span>
+                </div>
+                <div class="difficulty-row">
+                    <span>Difficulty</span>
+                    <span id="difficultyValue" style="color: var(--accent-orange); font-family:'Space Mono',monospace;">—</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="control-panel glass">
+                <div class="button-group">
+                    <button class="btn btn-primary" id="startBtn">▶ Start Mining</button>
+                    <button class="btn btn-secondary" id="stopBtn" disabled>⏹ Stop</button>
+                </div>
+                <div class="terminal-window">
+                    <div class="terminal-titlebar">
+                        <span class="term-dot red"></span>
+                        <span class="term-dot yellow"></span>
+                        <span class="term-dot green"></span>
+                        <span class="terminal-title">chocohub@miner — zsh</span>
+                    </div>
+                    <div class="console" id="console">
+                        <div class="log-line log-info">&gt; Ready. Waiting for job...</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <aside class="side-col">
+            <!-- Mining Boost -->
+            <div class="boost-card glass" id="boostCard">
+                <div class="boost-title">⚡ Mining Boost 1.3×</div>
+                <div class="boost-sub">Watch the ad for 15s to activate a 1.3× reward multiplier</div>
+                <button class="boost-btn" id="boostBtn" disabled>▶ Watch Ad</button>
+                <div class="boost-status" id="boostStatus">⏳ Watch the ad sidebar for 15s to unlock</div>
+            </div>
+
+            <!-- Info widget -->
+            <div class="widget-card glass">
+                <div class="greeting" id="greetingText">Hello, miner 👋</div>
+                <div class="greeting-sub" id="greetingSub">Let's find some blocks today.</div>
+                <div class="mini-row"><span><span class="dot-status"></span>Network</span><span>Online</span></div>
+                <div class="mini-row"><span>Theme</span><span id="themeLabel">Night mode</span></div>
+                <div class="mini-row"><span>Local time</span><span id="miniTime">—</span></div>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<!-- BEGIN AADS AD UNIT 2444734 -->
+<div class="ad-sidebar">
+    <input autocomplete="off" type="checkbox" id="aadsstickymqfltshv" hidden />
+    <div class="ad-inner">
+        <div style="width:100%;text-align:center;">
+            <a class="ad-frame-link"
+               target="_blank"
+               href="https://aads.com/campaigns/new?source_id=2444734&source_type=ad_unit&partner=2444734">
+                Advertise here
+            </a>
+        </div>
+        <iframe class="ad-iframe"
+                data-aa="2444734"
+                src="//acceptable.a-ads.com/2444734/?size=Adaptive&background_color=000000&link_color=00e3ff">
+        </iframe>
+    </div>
+    <label for="aadsstickymqfltshv" class="close-btn" title="Fechar anúncio">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 490 490">
+            <polygon points="456.851,0 245,212.564 33.149,0 0.708,32.337 212.669,245.004 0.708,457.678 33.149,490 245,277.443 456.851,490 489.292,457.678 277.331,245.004 489.292,32.337"/>
+        </svg>
+    </label>
+</div>
+<!-- END AADS AD UNIT 2444734 -->
+
+<div id="toast" class="toast"></div>
+
+<script>
+    // ---------- UI-only enhancements: clock, date, theme toggle ----------
+    // Isolated from the mining logic below; touches only cosmetic elements.
+    (function () {
+        const root = document.documentElement;
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const themeLabel = document.getElementById('themeLabel');
+        const liveClock = document.getElementById('liveClock');
+        const liveDate = document.getElementById('liveDate');
+        const miniTime = document.getElementById('miniTime');
+        const greetingText = document.getElementById('greetingText');
+        const greetingSub = document.getElementById('greetingSub');
+
+        const SUN = '<path d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z" stroke="#FF9F0A" stroke-width="2"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" stroke="#FF9F0A" stroke-width="2" stroke-linecap="round"/>';
+        const MOON = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" stroke="#0A84FF" stroke-width="2" stroke-linejoin="round"/>';
+
+        function applyTheme(theme) {
+            root.setAttribute('data-theme', theme);
+            try { localStorage.setItem('choco_miner_theme', theme); } catch (e) {}
+            if (themeIcon) themeIcon.innerHTML = theme === 'dark' ? MOON : SUN;
+            if (themeLabel) themeLabel.textContent = theme === 'dark' ? 'Night mode' : 'Day mode';
+        }
+
+        let savedTheme = 'dark';
+        try { savedTheme = localStorage.getItem('choco_miner_theme') || 'dark'; } catch (e) {}
+        applyTheme(savedTheme);
+
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const current = root.getAttribute('data-theme');
+                applyTheme(current === 'dark' ? 'light' : 'dark');
+            });
+        }
+
+        function pad(n) { return n.toString().padStart(2, '0'); }
+
+        function updateClock() {
+            const now = new Date();
+            const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+            const dateStr = now.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+            if (liveClock) liveClock.textContent = timeStr;
+            if (liveDate) liveDate.textContent = dateStr;
+            if (miniTime) miniTime.textContent = timeStr;
+
+            const hour = now.getHours();
+            let greeting = 'Good evening';
+            let sub = "Let's find some blocks tonight.";
+            if (hour < 5) { greeting = 'Still up?'; sub = 'The night shift earns CC too.'; }
+            else if (hour < 12) { greeting = 'Good morning'; sub = "Let's find some blocks today."; }
+            else if (hour < 17) { greeting = 'Good afternoon'; sub = 'Keep those hashes flowing.'; }
+            else if (hour < 21) { greeting = 'Good evening'; sub = 'Prime time for mining.'; }
+            if (greetingText) greetingText.textContent = `${greeting}, miner 👋`;
+            if (greetingSub) greetingSub.textContent = sub;
+        }
+
+        updateClock();
+        setInterval(updateClock, 1000);
+    })();
+</script>
+
+<script>
+    (function() {
+        // ---------- Lấy username từ localStorage ----------
+        const workerName = localStorage.getItem('choco_user');
+
+        // ---------- DOM elements ----------
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const hashrateSpan = document.getElementById('hashrateValue');
+        const totalHashesSpan = document.getElementById('totalHashesValue');
+        const uptimeSpan = document.getElementById('uptimeValue');
+        const jobIdSpan = document.getElementById('jobId');
+        const rewardSpan = document.getElementById('rewardBadge');
+        const difficultySpan = document.getElementById('difficultyValue');
+        const progressFill = document.getElementById('progressFill');
+        const consoleDiv = document.getElementById('console');
+
+        // ---------- Helper functions ----------
+        function log(msg, type = 'info') {
+            const line = document.createElement('div');
+            line.className = `log-line log-${type}`;
+            line.textContent = `> ${msg}`;
+            consoleDiv.appendChild(line);
+            line.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            while (consoleDiv.children.length > 100) consoleDiv.removeChild(consoleDiv.firstChild);
+        }
+
+        // Nếu chưa đăng nhập, không cho mining
+        if (!workerName) {
+            log('Not logged in. Please log in to start mining.', 'warn');
+            startBtn.disabled = true;
+            stopBtn.disabled = true;
+            return;
+        }
+
+        // ---------- State ----------
+        let miningActive = false;
+        let autoMineEnabled = false;
+        let currentJob = null;
+        let totalHashes = 0;
+        let sessionStart = null;
+        let hashrateInterval = null;
+        let currentHashCount = 0;
+        let lastTimestamp = Date.now();
+        let currentHashrate = 0;
+        let worker = null;
+
+        // ---------- UI helpers ----------
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.className = `toast show ${isError ? 'error' : 'success'}`;
+            setTimeout(() => toast.classList.remove('show'), 3500);
+        }
+
+        function formatHashrate(hps) {
+            if (hps >= 1e6) return (hps / 1e6).toFixed(2) + ' MH/s';
+            if (hps >= 1e3) return (hps / 1e3).toFixed(2) + ' kH/s';
+            return hps.toFixed(1) + ' H/s';
+        }
+
+        function formatNumber(n) {
+            if (n >= 1e9) return (n / 1e9).toFixed(1) + 'B';
+            if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+            if (n >= 1e3) return (n / 1e3).toFixed(1) + 'k';
+            return n.toString();
+        }
+
+        function updateUI() {
+            totalHashesSpan.textContent = formatNumber(totalHashes);
+            hashrateSpan.textContent = formatHashrate(currentHashrate);
+            if (sessionStart) {
+                const elapsed = Math.floor((Date.now() - sessionStart) / 1000);
+                uptimeSpan.textContent = elapsed + 's';
+            } else {
+                uptimeSpan.textContent = '0s';
+            }
+        }
+
+        function startHashrateTracker() {
+            if (hashrateInterval) clearInterval(hashrateInterval);
+            currentHashCount = 0;
+            lastTimestamp = Date.now();
+            hashrateInterval = setInterval(() => {
+                const now = Date.now();
+                const delta = (now - lastTimestamp) / 1000;
+                if (delta >= 1) {
+                    currentHashrate = currentHashCount / delta;
+                    currentHashCount = 0;
+                    lastTimestamp = now;
+                    updateUI();
+                }
+            }, 1000);
+        }
+
+        // ---------- Job handling (hỗ trợ cả server cũ và mới) ----------
+        async function fetchNewJob() {
+            try {
+                const res = await fetch('/get_job', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ worker_name: workerName })
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const job = await res.json();
+                if (!job || !(job.bounty_id || job.job_id)) {
+                    throw new Error('Invalid job response (missing id)');
+                }
+                return job;
+            } catch (err) {
+                log(`Failed to fetch job: ${err.message}`, 'err');
+                return null;
+            }
+        }
+
+        async function startMiningWithJob(job) {
+            if (!job) return false;
+            currentJob = job;
+
+            const jobId = job.bounty_id || job.job_id;
+            jobIdSpan.textContent = jobId.substring(0, 12) + '...';
+            const reward = (job.reward !== undefined && job.reward !== null) ? parseFloat(job.reward).toFixed(4) : '?';
+            rewardSpan.textContent = `${reward} CC`;
+            difficultySpan.textContent = job.difficulty || '?';
+            document.getElementById('jobCard').classList.add('mining');
+            progressFill.style.width = '0%';
+
+            // Tạo Worker nếu chưa có
+            if (!worker) {
+                worker = new Worker('/static/js/cpu.js');
+                worker.onmessage = handleWorkerMessage;
+                worker.onerror = (e) => log(`Worker error: ${e.message}`, 'err');
+            }
+
+            // ⚠️ QUAN TRỌNG: truyền username vào worker để hash khớp với server
+            worker.postMessage({
+                type: 'start',
+                ...job,
+                username: workerName,
+                worker_name: workerName
+            });
+
+            miningActive = true;
+            totalHashes = 0;
+            sessionStart = Date.now();
+            currentHashCount = 0;
+            currentHashrate = 0;
+            startHashrateTracker();
+            updateUI();
+
+            log(`Mining job #${jobId.substring(0,10)}... | diff: ${job.difficulty} | reward: ${reward} CC`, 'info');
+            return true;
+        }
+
+        function stopMiningProcess(keepJob = false) {
+            if (worker && miningActive) {
+                worker.postMessage({ type: 'stop' });
+            }
+            miningActive = false;
+            if (hashrateInterval) clearInterval(hashrateInterval);
+            hashrateInterval = null;
+            if (!keepJob) {
+                currentJob = null;
+                document.getElementById('jobCard').classList.remove('mining');
+                jobIdSpan.textContent = 'No active job';
+                rewardSpan.textContent = '— CC';
+                difficultySpan.textContent = '—';
+                progressFill.style.width = '0%';
+            }
+            updateUI();
+        }
+
+        // ---------- Xử lý tin nhắn từ Worker ----------
+        function handleWorkerMessage(e) {
+            const data = e.data;
+            switch (data.type) {
+                case 'ready':
+                    log('Worker ready', 'info');
+                    break;
+                case 'debug':
+                    log(`[Worker] ${data.message}`, 'info');
+                    break;
+                case 'progress':
+                    const newHashes = data.hashes || 0;
+                    totalHashes += newHashes;
+                    currentHashCount += newHashes;
+                    updateUI();
+                    const targetTotal = currentJob?.difficulty ? parseInt(currentJob.difficulty) : 50000;
+                    const percent = Math.min(95, (totalHashes / targetTotal) * 100);
+                    progressFill.style.width = percent + '%';
+                    break;
+                case 'found':
+                    log(`🎉 Nonce found: ${data.nonce}`, 'win');
+                    progressFill.style.width = '100%';
+                    miningActive = false;
+                    if (worker) worker.postMessage({ type: 'stop' });
+                    const jobId = data.job_id || data.bounty_id;
+                    if (jobId) {
+                        submitSolution(jobId, data.nonce, workerName);
+                    } else {
+                        log('No job id in found message', 'err');
+                    }
+                    break;
+                case 'pong':
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        // ---------- Gửi solution ----------
+        async function submitSolution(jobId, nonce, wName) {
+            log(`Submitting solution for #${jobId.substring(0,8)}...`, 'info');
+            try {
+                const res = await fetch('/submit_solution', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        bounty_id: jobId,
+                        nonce: nonce,
+                        worker_name: wName,
+                        device_type: 'web_miner'
+                    })
+                });
+                const result = await res.json();
+                if (res.ok && result.status === 'success') {
+                    const reward = result.reward || '?';
+                    log(`✅ BLOCK SOLVED! +${reward} CC`, 'win');
+                    showToast(`+${reward} CC earned!`, false);
+                    if (autoMineEnabled) {
+                        setTimeout(() => startMiningLoop(), 2000);
+                    } else {
+                        stopMiningProcess(true);
+                        startBtn.textContent = '▶ Start Mining';
+                        stopBtn.disabled = true;
+                    }
+                } else {
+                    log(`❌ Submission rejected: ${result.reason || result.message || 'unknown'}`, 'err');
+                    showToast('Solution rejected', true);
+                    if (autoMineEnabled) {
+                        setTimeout(() => startMiningLoop(), 3000);
+                    }
+                }
+            } catch (err) {
+                log(`Submission error: ${err.message}`, 'err');
+                if (autoMineEnabled) {
+                    setTimeout(() => startMiningLoop(), 5000);
+                }
+            }
+        }
+
+        // ---------- Vòng lặp mining tự động ----------
+        async function startMiningLoop() {
+            if (!autoMineEnabled) return;
+            stopMiningProcess(true);
+            const job = await fetchNewJob();
+            if (!job) {
+                log('No job available, retrying in 5s...', 'warn');
+                setTimeout(() => startMiningLoop(), 5000);
+                return;
+            }
+            const ok = await startMiningWithJob(job);
+            if (!ok) {
+                setTimeout(() => startMiningLoop(), 3000);
+            } else {
+                startBtn.textContent = '⏸ Pause';
+                stopBtn.disabled = false;
+            }
+        }
+
+        // ---------- UI actions ----------
+        function onStart() {
+            if (miningActive) {
+                autoMineEnabled = false;
+                stopMiningProcess(true);
+                startBtn.textContent = '▶ Start Mining';
+                stopBtn.disabled = true;
+                log('Mining paused.', 'info');
+            } else {
+                autoMineEnabled = true;
+                startBtn.textContent = '⏸ Pause';
+                stopBtn.disabled = false;
+                log('Starting mining...', 'info');
+                startMiningLoop();
+            }
+        }
+
+        function onStop() {
+            autoMineEnabled = false;
+            stopMiningProcess(false);
+            startBtn.textContent = '▶ Start Mining';
+            stopBtn.disabled = true;
+            log('Miner stopped completely.', 'warn');
+        }
+
+        // ---------- Mining Boost (ad-view) ----------
+        const boostBtn = document.getElementById('boostBtn');
+        const boostStatus = document.getElementById('boostStatus');
+
+        let boostExpiresAt = 0;
+        let adVisibleDuration = 0;
+        let adWatchInterval = null;
+        let boostPollInterval = null;
+
+        function formatTime(sec) {
+            const h = Math.floor(sec / 3600);
+            const m = Math.floor((sec % 3600) / 60);
+            return h > 0 ? `${h}h ${m}m` : `${m}m`;
+        }
+
+        function updateBoostUI() {
+            const now = Math.floor(Date.now() / 1000);
+            const active = boostExpiresAt > now;
+
+            if (adWatchInterval) {
+                const pct = Math.min(100, Math.round((adVisibleDuration / 15) * 100));
+                boostStatus.textContent = `⏳ Ad visible ${adVisibleDuration}s / 15s (${pct}%) — keep the ad in view`;
+                boostBtn.disabled = adVisibleDuration < 15;
+                boostBtn.textContent = adVisibleDuration >= 15 ? '⚡ Activate Boost' : '⏳ Watching ad...';
+                boostStatus.className = 'boost-status';
+                document.getElementById('boostCard').classList.remove('active');
+            } else if (adVisibleDuration >= 15) {
+                boostBtn.disabled = false;
+                boostBtn.textContent = '⚡ Activate Boost';
+                boostStatus.textContent = '✅ Ad watched! Activate your 1.3× multiplier';
+                boostStatus.className = 'boost-status';
+                document.getElementById('boostCard').classList.remove('active');
+            } else if (active) {
+                const rem = boostExpiresAt - now;
+                boostBtn.disabled = false;
+                boostBtn.textContent = '▶ Watch Ad (+1h)';
+                boostStatus.textContent = `✅ 1.3× boost active — ${formatTime(rem)} remaining`;
+                boostStatus.className = 'boost-status active';
+                document.getElementById('boostCard').classList.add('active');
+            } else {
+                boostBtn.disabled = false;
+                boostBtn.textContent = '▶ Watch Ad';
+                boostStatus.textContent = 'Click "Watch Ad" and keep the ad in view for 15s to activate a 1.3× mining boost';
+                boostStatus.className = 'boost-status';
+                document.getElementById('boostCard').classList.remove('active');
+            }
+        }
+
+        function stopAdTracking() {
+            if (adWatchInterval) {
+                clearInterval(adWatchInterval);
+                adWatchInterval = null;
+            }
+            adVisibleDuration = 0;
+            document.querySelector('.ad-sidebar').classList.remove('visible');
+            updateBoostUI();
+        }
+
+        function startAdTracking() {
+            if (adWatchInterval) return;
+            adVisibleDuration = 0;
+            const adSidebar = document.querySelector('.ad-sidebar');
+            const adIframe = document.querySelector('.ad-iframe');
+            if (!adIframe) { log('Boost: ad not found', 'warn'); return; }
+            if (adSidebar) adSidebar.classList.add('visible');
+            adWatchInterval = setInterval(() => {
+                const rect = adIframe.getBoundingClientRect();
+                const vw = window.innerWidth;
+                const vh = window.innerHeight;
+                const visible = rect.left < vw && rect.right > 0 && rect.top < vh && rect.bottom > 0;
+                if (visible && rect.width > 0 && rect.height > 0) {
+                    const area = rect.width * rect.height;
+                    if (area / (vw * vh) > 0.02) {
+                        adVisibleDuration = Math.min(15, adVisibleDuration + 1);
+                        updateBoostUI();
+                        if (adVisibleDuration >= 15) {
+                            clearInterval(adWatchInterval);
+                            adWatchInterval = null;
+                            updateBoostUI();
+                        }
+                        return;
+                    }
+                }
+                updateBoostUI();
+            }, 1000);
+            updateBoostUI();
+        }
+
+        async function activateBoost() {
+            try {
+                const r1 = await fetch('/mining/boost/challenge', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: workerName }) });
+                if (!r1.ok) { log('Boost: challenge failed', 'error'); return; }
+                const { challenge_id } = await r1.json();
+                boostBtn.disabled = true;
+                boostBtn.textContent = '⏳ Verifying 10s...';
+                boostStatus.textContent = '⏺ Server verifying ad view time...';
+                await new Promise(r => setTimeout(r, 10000));
+                const r2 = await fetch('/mining/boost/activate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: workerName, challenge_id }) });
+                const data = await r2.json();
+                if (!r2.ok || data.status !== 'success') {
+                    log('Boost: ' + (data.message || 'activation failed'), 'error');
+                    updateBoostUI();
+                    return;
+                }
+                boostExpiresAt = data.expires_at;
+                log(`Mining Boost 1.3× activated! Expires at ${new Date(data.expires_at * 1000).toLocaleTimeString()}`, 'info');
+                updateBoostUI();
+                fetchBoostStatus();
+            } catch (e) {
+                log('Boost: ' + (e.message || e), 'error');
+                updateBoostUI();
+            }
+        }
+
+        async function fetchBoostStatus() {
+            try {
+                const r = await fetch('/mining/boost/status?username=' + encodeURIComponent(workerName));
+                const data = await r.json();
+                boostExpiresAt = (data.status === 'success' && data.active) ? data.expires_at : 0;
+                updateBoostUI();
+            } catch (e) {}
+        }
+
+        function startBoostPolling() {
+            fetchBoostStatus();
+            boostPollInterval = setInterval(fetchBoostStatus, 30000);
+        }
+
+        boostBtn.addEventListener('click', async () => {
+            if (adVisibleDuration >= 15) {
+                await activateBoost();
+                stopAdTracking();
+            } else if (!adWatchInterval) {
+                startAdTracking();
+            }
+        });
+
+        // ---------- Khởi tạo ----------
+        function init() {
+            startBtn.addEventListener('click', onStart);
+            stopBtn.addEventListener('click', onStop);
+            startBoostPolling();
+            updateBoostUI();
+            log(`Logged in as: ${workerName}`, 'info');
+            // Tự động bắt đầu sau 1 giây
+            setTimeout(() => {
+                autoMineEnabled = true;
+                startMiningLoop();
+            }, 1000);
+        }
+
+        init();
+    })();
+</script>
+</body>
+</html>
