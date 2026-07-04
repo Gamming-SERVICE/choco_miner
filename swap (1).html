@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>CHOCO HUB · Swap Center</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --radius-xl: 30px;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-pill: 999px;
+
+            --accent-yellow: #FFD60A;
+            --accent-orange: #FF9F0A;
+            --accent-blue: #0A84FF;
+            --accent-pink: #FF375F;
+            --accent-green: #32D74B;
+            --accent-red: #FA5252;
+            --accent-cyan: #64D2FF;
+
+            --ease-liquid: cubic-bezier(.22,1,.36,1);
+        }
+
+        html[data-theme="dark"] {
+            --bg-base: #07060A;
+            --text-primary: #F1EAE0;
+            --text-secondary: #9A93A6;
+            --text-tertiary: #5F5A6D;
+
+            --glass-bg: rgba(255,255,255,0.055);
+            --glass-bg-strong: rgba(255,255,255,0.09);
+            --glass-border: rgba(255,255,255,0.14);
+            --glass-highlight: rgba(255,255,255,0.22);
+            --glass-shadow: rgba(0,0,0,0.55);
+
+            --field-bg: rgba(0,0,0,0.35);
+            --field-border: rgba(255,255,255,0.12);
+            --dropdown-bg: rgba(18,16,22,0.92);
+
+            --blob-opacity: 0.55;
+            --blob-blur: 70px;
+        }
+
+        html[data-theme="light"] {
+            --bg-base: #EFEFF6;
+            --text-primary: #1B1A22;
+            --text-secondary: #5B5766;
+            --text-tertiary: #8B879A;
+
+            --glass-bg: rgba(255,255,255,0.5);
+            --glass-bg-strong: rgba(255,255,255,0.75);
+            --glass-border: rgba(255,255,255,0.9);
+            --glass-highlight: rgba(255,255,255,0.95);
+            --glass-shadow: rgba(31,32,71,0.14);
+
+            --field-bg: rgba(255,255,255,0.6);
+            --field-border: rgba(0,0,0,0.1);
+            --dropdown-bg: rgba(255,255,255,0.98);
+
+            --blob-opacity: 0.5;
+            --blob-blur: 80px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; }
+
+        body {
+            background: var(--bg-base);
+            font-family: 'Outfit', sans-serif;
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 1.5rem 1rem 3rem;
+            overflow-x: hidden;
+            transition: background-color .6s var(--ease-liquid), color .5s var(--ease-liquid);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ---------- Floating abstract background art ---------- */
+        .bg-blobs {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            overflow: hidden;
+            filter: blur(var(--blob-blur)) saturate(160%);
+            opacity: var(--blob-opacity);
+            transition: opacity .6s var(--ease-liquid);
+            pointer-events: none;
+        }
+        .blob { position: absolute; border-radius: 50%; will-change: transform; }
+        .blob-yellow {
+            width: 46vw; height: 46vw; top: -12%; left: -8%;
+            background: radial-gradient(circle at 40% 40%, var(--accent-yellow) 0%, transparent 72%);
+            animation: float1 24s var(--ease-liquid) infinite alternate;
+        }
+        .blob-blue {
+            width: 52vw; height: 52vw; bottom: -20%; right: -12%;
+            background: radial-gradient(circle at 60% 60%, var(--accent-blue) 0%, transparent 72%);
+            animation: float2 30s var(--ease-liquid) infinite alternate;
+        }
+        .blob-pink {
+            width: 38vw; height: 38vw; top: 22%; right: 10%;
+            background: radial-gradient(circle at 50% 50%, var(--accent-pink) 0%, transparent 72%);
+            animation: float3 20s var(--ease-liquid) infinite alternate;
+        }
+        .blob-orange {
+            width: 36vw; height: 36vw; bottom: 4%; left: 18%;
+            background: radial-gradient(circle at 50% 50%, var(--accent-orange) 0%, transparent 72%);
+            animation: float4 26s var(--ease-liquid) infinite alternate;
+        }
+        @keyframes float1 { 0%{transform:translate(0,0) scale(1) rotate(0deg);} 50%{transform:translate(6vw,8vh) scale(1.12) rotate(20deg);} 100%{transform:translate(-4vw,4vh) scale(0.95) rotate(-15deg);} }
+        @keyframes float2 { 0%{transform:translate(0,0) scale(1);} 50%{transform:translate(-7vw,-6vh) scale(1.1);} 100%{transform:translate(3vw,-9vh) scale(0.92);} }
+        @keyframes float3 { 0%{transform:translate(0,0) scale(1);} 50%{transform:translate(-5vw,7vh) scale(0.9);} 100%{transform:translate(6vw,3vh) scale(1.15);} }
+        @keyframes float4 { 0%{transform:translate(0,0) scale(1);} 50%{transform:translate(5vw,-5vh) scale(1.08);} 100%{transform:translate(-6vw,-2vh) scale(0.94);} }
+
+        .grain {
+            position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0.035;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            mix-blend-mode: overlay;
+        }
+
+        /* ---------- Glass primitive ---------- */
+        .glass {
+            position: relative;
+            background: var(--glass-bg);
+            backdrop-filter: blur(26px) saturate(180%);
+            -webkit-backdrop-filter: blur(26px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 10px 34px var(--glass-shadow), inset 0 1px 0 var(--glass-highlight);
+            transition: background-color .5s var(--ease-liquid), border-color .5s var(--ease-liquid), box-shadow .5s var(--ease-liquid);
+            overflow: hidden;
+        }
+        .glass::before {
+            content: "";
+            position: absolute; inset: 0;
+            background: linear-gradient(130deg, rgba(255,255,255,0.22), transparent 45%);
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        .glass-pill { border-radius: var(--radius-pill) !important; }
+
+        a { color: inherit; }
+
+        /* ---------- App shell ---------- */
+        .app-shell { max-width: 1080px; margin: 0 auto; position: relative; z-index: 1; }
+
+        .topbar {
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 14px; padding: 14px 22px; margin-bottom: 1.6rem;
+        }
+        .brand { display: flex; align-items: center; gap: 10px; }
+        .brand-icon { font-size: 24px; filter: drop-shadow(0 2px 6px rgba(255,159,10,0.5)); }
+        .brand h1 {
+            font-size: 1.2rem; font-weight: 800; letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--accent-yellow), var(--accent-orange) 45%, var(--accent-pink));
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+        .brand-sub { font-size: 0.65rem; color: var(--text-tertiary); font-family:'Space Mono',monospace; letter-spacing:0.06em; text-transform: uppercase; }
+
+        .topbar-widgets { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .clock-widget { display: flex; flex-direction: column; align-items: flex-end; padding: 6px 16px; line-height: 1.15; }
+        .clock-widget .time { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 0.9rem; letter-spacing: 0.03em; }
+        .clock-widget .date { font-size: 0.62rem; color: var(--text-secondary); }
+
+        .theme-toggle { appearance: none; border: none; background: none; cursor: pointer; padding: 0; }
+        .toggle-track {
+            width: 56px; height: 30px; border-radius: var(--radius-pill);
+            background: linear-gradient(135deg, #2b2540, #171425);
+            border: 1px solid var(--glass-border);
+            display: flex; align-items: center; padding: 3px;
+            transition: background .45s var(--ease-liquid);
+            position: relative; box-shadow: inset 0 2px 6px rgba(0,0,0,0.4);
+        }
+        html[data-theme="light"] .toggle-track { background: linear-gradient(135deg, #FFE28A, #FFB347); }
+        .toggle-thumb {
+            width: 24px; height: 24px; border-radius: 50%; background: #fff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+            display: flex; align-items: center; justify-content: center;
+            transform: translateX(0); transition: transform .45s var(--ease-liquid);
+        }
+        html[data-theme="light"] .toggle-thumb { transform: translateX(26px); }
+        .toggle-thumb svg { width: 14px; height: 14px; }
+
+        .back-link {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 9px 20px; text-decoration: none; color: var(--text-secondary);
+            font-weight: 600; font-size: 0.8rem; transition: color .2s, gap .2s;
+        }
+        .back-link:hover { gap: 10px; color: var(--accent-orange); }
+
+        /* ---------- Layout grid ---------- */
+        .layout-grid { display: grid; grid-template-columns: 1fr; gap: 1.4rem; }
+        .side-col { display: flex; flex-direction: column; gap: 1.4rem; }
+        @media (min-width: 900px) {
+            .layout-grid { grid-template-columns: minmax(0,1fr) 300px; align-items: start; }
+            .side-col { position: sticky; top: 1.5rem; }
+        }
+
+        /* ---------- Swap container ---------- */
+        .swap-container { padding: 1.8rem; }
+        .swap-container h1 {
+            font-size: 1.5rem; font-weight: 800; margin-bottom: 0.2rem;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .sub { color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.82rem; }
+
+        .balance-badge {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            padding: 9px 18px;
+            margin-bottom: 1.6rem;
+            display: inline-block;
+            color: var(--accent-orange);
+            border: 1px solid rgba(255,159,10,0.3);
+            background: var(--glass-bg-strong);
+        }
+
+        .swap-card { padding: 1.5rem; margin-bottom: 1.3rem; }
+
+        .select-row { display: flex; gap: 12px; margin-bottom: 1.4rem; flex-wrap: wrap; }
+        .select-box { flex: 1; min-width: 140px; }
+        .select-box label {
+            display: block; font-size: 0.65rem; text-transform: uppercase;
+            letter-spacing: 0.08em; color: var(--text-tertiary); margin-bottom: 7px; font-weight: 600;
+        }
+        .custom-select { position: relative; width: 100%; }
+        .select-trigger {
+            width: 100%;
+            background: var(--field-bg);
+            border: 1px solid var(--field-border);
+            border-radius: var(--radius-md);
+            padding: 13px 34px 13px 14px;
+            color: var(--accent-orange);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.92rem;
+            cursor: pointer;
+            display: flex; align-items: center; gap: 8px;
+            position: relative;
+            transition: border-color .2s, transform .15s;
+        }
+        .select-trigger:hover { border-color: rgba(255,159,10,0.4); }
+        .select-trigger::after {
+            content: "";
+            position: absolute; right: 14px; top: 50%;
+            width: 8px; height: 8px;
+            border-right: 2px solid var(--text-secondary);
+            border-bottom: 2px solid var(--text-secondary);
+            transform: translateY(-70%) rotate(45deg);
+            pointer-events: none;
+        }
+        .select-trigger img, .select-option img { width: 20px; height: 20px; border-radius: 50%; }
+        .select-dropdown {
+            position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+            background: var(--dropdown-bg);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            z-index: 100;
+            display: none;
+            box-shadow: 0 14px 34px var(--glass-shadow);
+        }
+        .select-dropdown.show { display: block; animation: dropIn .18s var(--ease-liquid); }
+        @keyframes dropIn { from { opacity: 0; transform: translateY(-6px);} to { opacity: 1; transform: translateY(0);} }
+        .select-option {
+            padding: 12px 14px; cursor: pointer; display: flex; align-items: center; gap: 8px;
+            transition: background 0.2s; font-size: 0.88rem;
+        }
+        .select-option:hover { background: rgba(255,159,10,0.15); }
+        .select-option.selected { background: rgba(245,138,0,0.22); }
+
+        .rate-badge {
+            font-size: 0.72rem;
+            color: var(--accent-orange);
+            background: rgba(255,159,10,0.1);
+            border: 1px solid rgba(255,159,10,0.2);
+            padding: 7px 14px;
+            border-radius: var(--radius-pill);
+            display: inline-block;
+            margin-bottom: 1.1rem;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .input-group { margin-bottom: 1rem; }
+        .input-group label {
+            display: block; font-size: 0.65rem; text-transform: uppercase;
+            letter-spacing: 0.08em; color: var(--text-tertiary); margin-bottom: 8px; font-weight: 600;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--field-bg);
+            border: 1px solid var(--field-border);
+            border-radius: var(--radius-md);
+            color: var(--accent-orange);
+            font-family: 'Space Mono', monospace;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        .input-group input:focus { border-color: var(--accent-orange); box-shadow: 0 0 0 3px rgba(255,159,10,0.15); }
+
+        .info-note {
+            background: rgba(255,159,10,0.08);
+            border: 1px solid rgba(255,159,10,0.15);
+            padding: 11px 15px;
+            border-radius: var(--radius-md);
+            font-size: 0.76rem;
+            color: var(--accent-orange);
+            margin: 12px 0;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .swap-btn {
+            width: 100%;
+            border: none;
+            padding: 15px;
+            border-radius: var(--radius-pill);
+            font-weight: 800;
+            font-size: 1rem;
+            color: #fff;
+            cursor: pointer;
+            transition: transform .2s var(--ease-liquid), filter .2s, opacity .2s;
+            margin-top: 12px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-pink));
+            box-shadow: 0 8px 22px rgba(10,132,255,0.35);
+        }
+        .swap-btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.07); }
+        .swap-btn:disabled { opacity: 0.5; transform: none; cursor: not-allowed; }
+
+        .toast-msg {
+            position: fixed;
+            bottom: 30px; left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background: var(--glass-bg-strong);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--accent-orange);
+            padding: 13px 26px;
+            border-radius: var(--radius-pill);
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity .3s var(--ease-liquid), transform .3s var(--ease-liquid);
+            pointer-events: none;
+            z-index: 1000;
+            text-align: center;
+            max-width: 90vw;
+            box-shadow: 0 10px 30px var(--glass-shadow);
+        }
+        .toast-msg.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        hr { border: none; border-top: 1px solid var(--glass-border); margin: 1.2rem 0; }
+
+        .footnote { font-size: 0.7rem; text-align: center; color: var(--text-tertiary); line-height: 1.7; }
+        .footnote strong { color: var(--accent-orange); }
+
+        .copy-btn {
+            background: rgba(255,159,10,0.18);
+            border: 1px solid rgba(255,159,10,0.35);
+            border-radius: var(--radius-pill);
+            padding: 4px 12px;
+            font-size: 0.68rem;
+            cursor: pointer;
+            transition: background .2s, transform .2s;
+            margin-left: 8px;
+            display: inline-block;
+            color: var(--accent-orange);
+            font-family: 'Space Mono', monospace;
+        }
+        .copy-btn:hover { background: rgba(255,159,10,0.32); transform: translateY(-1px); }
+
+        /* ---------- Side widgets ---------- */
+        .widget-card { padding: 1.2rem 1.3rem; }
+        .widget-card .greeting { font-size: 0.92rem; font-weight: 700; margin-bottom: 4px; }
+        .widget-card .greeting-sub { font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 14px; }
+        .mini-row {
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.72rem; color: var(--text-secondary); padding: 7px 0;
+            border-top: 1px solid var(--glass-border);
+        }
+        .mini-row:first-of-type { border-top: none; }
+        .mini-row .dot-status {
+            width: 8px; height: 8px; border-radius: 50%; background: var(--accent-green);
+            box-shadow: 0 0 8px var(--accent-green); display: inline-block; margin-right: 6px;
+        }
+        .rates-widget .rate-line {
+            display: flex; justify-content: space-between; font-size: 0.75rem;
+            padding: 8px 0; border-top: 1px solid var(--glass-border);
+            font-family: 'Space Mono', monospace; color: var(--text-secondary);
+        }
+        .rates-widget .rate-line:first-of-type { border-top: none; }
+        .rates-widget .rate-line span:last-child { color: var(--accent-orange); font-weight: 700; }
+        .widget-title { font-size: 0.78rem; font-weight: 700; margin-bottom: 10px; color: var(--text-primary); }
+
+        /* ---------- Responsive ---------- */
+        @media (max-width: 768px) {
+            body { padding: 1rem 0.8rem 2.5rem; }
+            .topbar { padding: 12px 16px; }
+            .clock-widget { align-items: flex-start; }
+        }
+        @media (max-width: 480px) {
+            .swap-container { padding: 1.3rem; }
+            .select-row { flex-direction: column; }
+            .topbar-widgets { width: 100%; justify-content: space-between; }
+            .clock-widget { align-items: flex-start; padding: 6px 4px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .blob { animation: none !important; }
+            * { transition-duration: 0.01ms !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-blobs" aria-hidden="true">
+    <div class="blob blob-yellow"></div>
+    <div class="blob blob-blue"></div>
+    <div class="blob blob-pink"></div>
+    <div class="blob blob-orange"></div>
+</div>
+<div class="grain" aria-hidden="true"></div>
+
+<div class="app-shell">
+
+    <header class="topbar glass">
+        <div class="brand">
+            <span class="brand-icon">🔄</span>
+            <div>
+                <h1>Swap Center</h1>
+                <div class="brand-sub">ChocoHub</div>
+            </div>
+        </div>
+        <div class="topbar-widgets">
+            <div class="clock-widget">
+                <span class="time" id="liveClock">00:00:00</span>
+                <span class="date" id="liveDate">—</span>
+            </div>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle day and night mode" title="Toggle theme">
+                <span class="toggle-track">
+                    <span class="toggle-thumb">
+                        <svg id="themeIcon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" stroke="#0A84FF" stroke-width="2" stroke-linejoin="round"/>
+                        </svg>
+                    </span>
+                </span>
+            </button>
+            <a href="index.html" class="back-link glass glass-pill">← Dashboard</a>
+        </div>
+    </header>
+
+    <div class="layout-grid">
+        <div class="main-col">
+            <div class="swap-container glass">
+                <h1><span>🔄</span> Swap Center</h1>
+                <div class="sub">Convert between CC, DUCO and XNO</div>
+
+                <div class="balance-badge glass-pill" id="wallet-balance">💰 Loading CC...</div>
+
+                <div class="swap-card glass">
+                    <div class="select-row">
+                        <div class="select-box">
+                            <label>From (You pay)</label>
+                            <div class="custom-select" id="from-select">
+                                <div class="select-trigger">
+                                    <span>🍫</span> CC (Choco Coin)
+                                </div>
+                                <div class="select-dropdown">
+                                    <div class="select-option" data-value="cc">
+                                        <span>🍫</span> CC (Choco Coin)
+                                    </div>
+                                    <div class="select-option" data-value="duco">
+                                        <img src="https://github.com/revoxhere/duino-coin/raw/master/Resources/duco.png" alt="DUCO"> DUCO (Duino Coin)
+                                    </div>
+                                    <div class="select-option" data-value="xno">
+                                        <img src="https://xno.nano.org/images/xno-badge-blue.svg" alt="XNO"> XNO (Nano)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="select-box">
+                            <label>To (You receive)</label>
+                            <div class="custom-select" id="to-select">
+                                <div class="select-trigger">
+                                    <img src="https://github.com/revoxhere/duino-coin/raw/master/Resources/duco.png" alt="DUCO"> DUCO (Duino Coin)
+                                </div>
+                                <div class="select-dropdown">
+                                    <div class="select-option" data-value="duco">
+                                        <img src="https://github.com/revoxhere/duino-coin/raw/master/Resources/duco.png" alt="DUCO"> DUCO (Duino Coin)
+                                    </div>
+                                    <div class="select-option" data-value="cc">
+                                        <span>🍫</span> CC (Choco Coin)
+                                    </div>
+                                    <div class="select-option" data-value="xno">
+                                        <img src="https://xno.nano.org/images/xno-badge-blue.svg" alt="XNO"> XNO (Nano)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="rate-badge" id="rate-display">⚡ Rate: 10 CC = 1 DUCO</div>
+
+                    <div class="input-group">
+                        <label id="amount-label">Amount (CC)</label>
+                        <input type="number" id="amount-input" placeholder="0.00" step="any">
+                    </div>
+
+                    <div class="input-group" id="receiver-group" style="display: none;">
+                        <label id="receiver-label">Receiver</label>
+                        <input type="text" id="receiver-input" placeholder="Enter username or address">
+                    </div>
+
+                    <div class="info-note" id="info-note">
+                        💡 You will pay from your CC balance
+                    </div>
+
+                    <div class="estimated" id="estimate-display" style="text-align: right; font-size: 0.85rem; color: var(--text-secondary); margin-top: 8px; font-family:'Space Mono',monospace;">
+                        ≈ 0.00
+                    </div>
+
+                    <button class="swap-btn" id="swap-btn">Swap</button>
+                </div>
+
+                <hr>
+                <div class="footnote">
+                    ⚡ CC swaps are processed instantly.<br>
+                    🔄 DUCO → CC: Send DUCO to <strong>Nam2010</strong> with memo "SWAP CC for {username}".<br>
+                    🟦 XNO → CC: Send XNO to the address below with memo "SWAP CC for {username}".<br>
+                    📦 All swaps are recorded for safety.
+                </div>
+            </div>
+        </div>
+
+        <aside class="side-col">
+            <div class="widget-card glass">
+                <div class="greeting" id="greetingText">Hello, trader 👋</div>
+                <div class="greeting-sub" id="greetingSub">Ready to make a swap?</div>
+                <div class="mini-row"><span><span class="dot-status"></span>Network</span><span>Online</span></div>
+                <div class="mini-row"><span>Theme</span><span id="themeLabel">Night mode</span></div>
+                <div class="mini-row"><span>Local time</span><span id="miniTime">—</span></div>
+            </div>
+
+            <div class="widget-card glass rates-widget">
+                <div class="widget-title">📊 Reference Rates</div>
+                <div class="rate-line"><span>1 DUCO</span><span>10 CC</span></div>
+                <div class="rate-line"><span>1 XNO</span><span>500,000 CC</span></div>
+                <div class="rate-line"><span>1,000,000 CC</span><span>2 XNO</span></div>
+            </div>
+        </aside>
+    </div>
+</div>
+
+
+<div id="toast" class="toast-msg"></div>
+
+<script>
+    // ---------- UI-only enhancements: clock, date, theme toggle ----------
+    // Isolated in its own IIFE; does not touch or rely on swap logic below.
+    (function () {
+        const root = document.documentElement;
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const themeLabel = document.getElementById('themeLabel');
+        const liveClock = document.getElementById('liveClock');
+        const liveDate = document.getElementById('liveDate');
+        const miniTime = document.getElementById('miniTime');
+        const greetingText = document.getElementById('greetingText');
+        const greetingSub = document.getElementById('greetingSub');
+
+        const SUN = '<path d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z" stroke="#FF9F0A" stroke-width="2"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" stroke="#FF9F0A" stroke-width="2" stroke-linecap="round"/>';
+        const MOON = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" stroke="#0A84FF" stroke-width="2" stroke-linejoin="round"/>';
+
+        function applyTheme(theme) {
+            root.setAttribute('data-theme', theme);
+            try { localStorage.setItem('choco_swap_theme', theme); } catch (e) {}
+            if (themeIcon) themeIcon.innerHTML = theme === 'dark' ? MOON : SUN;
+            if (themeLabel) themeLabel.textContent = theme === 'dark' ? 'Night mode' : 'Day mode';
+        }
+
+        let savedTheme = 'dark';
+        try { savedTheme = localStorage.getItem('choco_swap_theme') || 'dark'; } catch (e) {}
+        applyTheme(savedTheme);
+
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const current = root.getAttribute('data-theme');
+                applyTheme(current === 'dark' ? 'light' : 'dark');
+            });
+        }
+
+        function pad(n) { return n.toString().padStart(2, '0'); }
+
+        function updateClock() {
+            const now = new Date();
+            const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+            const dateStr = now.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+            if (liveClock) liveClock.textContent = timeStr;
+            if (liveDate) liveDate.textContent = dateStr;
+            if (miniTime) miniTime.textContent = timeStr;
+
+            const hour = now.getHours();
+            let greeting = 'Good evening';
+            let sub = 'Ready to make a swap?';
+            if (hour < 5) { greeting = 'Still up?'; sub = 'Markets never sleep.'; }
+            else if (hour < 12) { greeting = 'Good morning'; sub = 'Ready to make a swap?'; }
+            else if (hour < 17) { greeting = 'Good afternoon'; sub = 'Rates are looking steady.'; }
+            else if (hour < 21) { greeting = 'Good evening'; sub = 'Good time to trade.'; }
+            if (greetingText) greetingText.textContent = `${greeting}, trader 👋`;
+            if (greetingSub) greetingSub.textContent = sub;
+        }
+
+        updateClock();
+        setInterval(updateClock, 1000);
+    })();
+</script>
+
+<script>
+    // ---------- CONFIG ----------
+    let xnoReceiveAddress = "nano_3k41y61xxgmre13exyk3q69k78bxxwhmrmncezt49jg1sok18xo64jeff5hk"; // fallback
+
+    // Rates: only CC ↔ DUCO and CC ↔ XNO
+    const rates = {
+        cc: { duco: 1/10, xno: 0.000002, cc: 1 },
+        duco: { cc: 10, duco: 1 },
+        xno:  { cc: 500000, xno: 1 }
+    };
+
+    const coinNames = {
+        cc: 'CC (Choco Coin)',
+        duco: 'DUCO (Duino Coin)',
+        xno: 'XNO (Nano)'
+    };
+
+    const coinIcons = {
+        cc: '🍫',
+        duco: '<img src="https://github.com/revoxhere/duino-coin/raw/master/Resources/duco.png" style="width:20px;height:20px;">',
+        xno: '<img src="https://xno.nano.org/images/xno-badge-blue.svg" style="width:20px;height:20px;">'
+    };
+
+    let currentUser = null;
+    let currentBalance = 0;
+    let fromValue = 'cc';
+    let toValue = 'duco';
+
+    // Helper: fetch XNO config from backend
+    async function fetchXNOConfig() {
+        try {
+            const res = await fetch('/swap/xno/config');
+            const data = await res.json();
+            if (data.status === 'success') {
+                xnoReceiveAddress = data.xno_receive_address;
+            }
+        } catch(e) { console.warn(e); }
+    }
+
+    // Custom select init
+    function initCustomSelect(selectId, onChange) {
+        const container = document.getElementById(selectId);
+        const trigger = container.querySelector('.select-trigger');
+        const dropdown = container.querySelector('.select-dropdown');
+        const options = container.querySelectorAll('.select-option');
+
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle('show');
+        });
+
+        options.forEach(opt => {
+            opt.addEventListener('click', () => {
+                const value = opt.dataset.value;
+                const html = opt.innerHTML;
+                trigger.innerHTML = html;
+                dropdown.classList.remove('show');
+                if (onChange) onChange(value);
+            });
+        });
+
+        document.addEventListener('click', () => {
+            dropdown.classList.remove('show');
+        });
+    }
+
+    function updateRateDisplay() {
+        let rateText = '';
+        if (fromValue === 'cc' && toValue === 'duco') rateText = '⚡ Rate: 10 CC = 1 DUCO';
+        else if (fromValue === 'cc' && toValue === 'xno') rateText = '⚡ Rate: 1,000,000 CC = 2 XNO (1 CC = 0.000002 XNO)';
+        else if (fromValue === 'duco' && toValue === 'cc') rateText = '⚡ Rate: 1 DUCO = 10 CC';
+        else if (fromValue === 'xno' && toValue === 'cc') rateText = '⚡ Rate: 1 XNO = 500,000 CC';
+        else rateText = '⚡ Select valid pair (CC ↔ DUCO / CC ↔ XNO)';
+        document.getElementById('rate-display').innerHTML = rateText;
+
+        document.getElementById('amount-label').innerHTML = `Amount (${coinNames[fromValue]})`;
+        const receiverGroup = document.getElementById('receiver-group');
+        const infoNote = document.getElementById('info-note');
+
+        if (fromValue === 'cc') {
+            // CC → something
+            receiverGroup.style.display = 'block';
+            if (toValue === 'duco') {
+                document.getElementById('receiver-label').innerHTML = 'DUCO Username (receiver)';
+                document.getElementById('receiver-input').placeholder = 'e.g. chocomaster';
+                infoNote.innerHTML = '💡 You pay from CC balance. Server will send DUCO to receiver.';
+            } else if (toValue === 'xno') {
+                document.getElementById('receiver-label').innerHTML = 'XNO Address (receiver)';
+                document.getElementById('receiver-input').placeholder = 'nano_...';
+                infoNote.innerHTML = '💡 You pay from CC balance. Server will send XNO to the provided address.';
+            } else {
+                receiverGroup.style.display = 'none';
+                infoNote.innerHTML = '💡 You pay from CC balance and receive CC directly.';
+            }
+        } else if (fromValue === 'duco' && toValue === 'cc') {
+            receiverGroup.style.display = 'block';
+            document.getElementById('receiver-label').innerHTML = 'Your ChocoHub username (receiver of CC)';
+            document.getElementById('receiver-input').placeholder = 'Your username';
+            updateDucoToCCInfo();
+        } else if (fromValue === 'xno' && toValue === 'cc') {
+            receiverGroup.style.display = 'block';
+            document.getElementById('receiver-label').innerHTML = 'Your ChocoHub username (receiver of CC)';
+            document.getElementById('receiver-input').placeholder = 'Your username';
+            updateXnoToCCInfo();
+        } else {
+            receiverGroup.style.display = 'none';
+            infoNote.innerHTML = '❌ This swap pair is not supported. Choose CC ↔ DUCO or CC ↔ XNO.';
+        }
+    }
+
+    function updateDucoToCCInfo() {
+        const amount = parseFloat(document.getElementById('amount-input').value) || 0;
+        const targetUsername = document.getElementById('receiver-input').value.trim() || currentUser || 'YOUR_USERNAME';
+        const ccAmount = (amount * 10).toFixed(4);
+        const infoNote = document.getElementById('info-note');
+        if (amount > 0) {
+            infoNote.innerHTML = `📤 Send <strong>${amount} DUCO</strong> to <strong style="color:#f58a00">Nam2010</strong> with memo:<br>
+            "<strong>SWAP CC for ${targetUsername}</strong>"<br>
+            After confirmation, <strong>${ccAmount} CC</strong> will be credited to <strong>${targetUsername}</strong>.
+            <span class="copy-btn" onclick="copyMemo('${targetUsername}')">📋 Copy Memo</span>`;
+        } else {
+            infoNote.innerHTML = `📤 Enter amount above to see instruction.`;
+        }
+    }
+
+    function updateXnoToCCInfo() {
+        const amount = parseFloat(document.getElementById('amount-input').value) || 0;
+        const targetUsername = document.getElementById('receiver-input').value.trim() || currentUser || 'YOUR_USERNAME';
+        const xnoAmount = (amount).toFixed(8);
+        const ccAmount = (amount * 500000).toFixed(2);
+        const infoNote = document.getElementById('info-note');
+        if (amount > 0) {
+            infoNote.innerHTML = `🟦 Send <strong>${xnoAmount} XNO</strong> to:<br>
+            <strong style="color:#f58a00; word-break:break-all;">${xnoReceiveAddress}</strong><br>
+            with memo: "<strong>SWAP CC for ${targetUsername}</strong>"<br>
+            After confirmation, <strong>${ccAmount} CC</strong> will be credited to <strong>${targetUsername}</strong>.
+            <span class="copy-btn" onclick="copyMemoXNO('${targetUsername}')">📋 Copy Memo</span>
+            <span class="copy-btn" onclick="copyAddress()">📋 Copy Address</span>`;
+        } else {
+            infoNote.innerHTML = `🟦 Enter amount (XNO) above to see instruction.`;
+        }
+    }
+
+    function copyMemo(username) {
+        const memo = `SWAP CC for ${username}`;
+        navigator.clipboard.writeText(memo);
+        showToast(`✓ Copied memo: ${memo}`, false);
+    }
+
+    function copyMemoXNO(username) {
+        const memo = `SWAP CC for ${username}`;
+        navigator.clipboard.writeText(memo);
+        showToast(`✓ Copied memo: ${memo}`, false);
+    }
+
+    function copyAddress() {
+        navigator.clipboard.writeText(xnoReceiveAddress);
+        showToast(`✓ Copied XNO address`, false);
+    }
+
+    function updateEstimate() {
+        const amount = parseFloat(document.getElementById('amount-input').value) || 0;
+        let result = 0;
+        if (fromValue === 'cc' && toValue === 'duco') result = amount * rates.cc.duco;
+        else if (fromValue === 'cc' && toValue === 'xno') result = amount * rates.cc.xno;
+        else if (fromValue === 'duco' && toValue === 'cc') result = amount * rates.duco.cc;
+        else if (fromValue === 'xno' && toValue === 'cc') result = amount * rates.xno.cc;
+        else result = amount;
+        const estimateEl = document.getElementById('estimate-display');
+        estimateEl.innerHTML = `≈ ${result.toFixed(8)} ${coinNames[toValue]}`;
+        if (fromValue === 'duco' && toValue === 'cc') updateDucoToCCInfo();
+        if (fromValue === 'xno' && toValue === 'cc') updateXnoToCCInfo();
+    }
+
+    function showToast(msg, isError = false) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.style.borderColor = isError ? '#fa5252' : '#40c057';
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+
+    async function fetchBalance() {
+        const token = localStorage.getItem('choco_token');
+        const user = localStorage.getItem('choco_user');
+        currentUser = user;
+        if (!user || !token) return;
+        try {
+            const res = await fetch('/get_user/' + encodeURIComponent(user), {
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            const data = await res.json();
+            if (data && typeof data.balance === 'number') {
+                currentBalance = data.balance;
+                document.getElementById('wallet-balance').innerHTML = `💰 Balance: ${currentBalance.toFixed(4)} CC`;
+            }
+        } catch(e) { console.warn(e); }
+    }
+
+    async function performSwap() {
+        const amount = parseFloat(document.getElementById('amount-input').value);
+        const receiver = document.getElementById('receiver-input').value.trim();
+        const token = localStorage.getItem('choco_token');
+        const user = localStorage.getItem('choco_user');
+
+        if (!user || !token) {
+            showToast('Please log in first', true);
+            setTimeout(() => window.location.href = 'index.html', 1500);
+            return;
+        }
+        if (!amount || amount <= 0) {
+            showToast('Invalid amount', true);
+            return;
+        }
+
+        // CC → DUCO / CC → XNO
+        if (fromValue === 'cc' && (toValue === 'duco' || toValue === 'xno')) {
+            if (!receiver) {
+                showToast('Please enter receiver info', true);
+                return;
+            }
+            if (amount > currentBalance) {
+                showToast(`Insufficient CC balance. You have ${currentBalance.toFixed(4)} CC`, true);
+                return;
+            }
+            try {
+                const res = await fetch('/swap/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({
+                        from_user: user,
+                        amount_cc: amount,
+                        swap_type: toValue, // 'duco' or 'xno'? Actually backend expects 'duco' or 'cc_to_xno'? Wait: from earlier backend, cc_to_xno is separate swap_type.
+                        receiver: receiver
+                    })
+                });
+                let data = await res.json();
+                // For CC→XNO, backend uses swap_type 'cc_to_xno', but our endpoint '/swap/create' only accepts 'duco', 'ccpoc', 'cc_to_xno'. So we need to adjust.
+                // Since we removed ccpoc, we must send 'cc_to_xno' for XNO.
+                if (toValue === 'xno') {
+                    // Try again with correct swap_type
+                    const res2 = await fetch('/swap/create', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + token
+                        },
+                        body: JSON.stringify({
+                            from_user: user,
+                            amount_cc: amount,
+                            swap_type: 'cc_to_xno',
+                            receiver: receiver
+                        })
+                    });
+                    data = await res2.json();
+                }
+                if (data.status === 'success') {
+                    showToast(`Swap request created! -${amount} CC`, false);
+                    await fetchBalance();
+                    document.getElementById('amount-input').value = '';
+                    document.getElementById('receiver-input').value = '';
+                    updateEstimate();
+                    updateRateDisplay();
+                } else {
+                    showToast(data.message || 'Swap failed', true);
+                }
+            } catch (err) {
+                showToast('Server error', true);
+            }
+        }
+        // DUCO → CC
+        else if (fromValue === 'duco' && toValue === 'cc') {
+            const targetUsername = receiver || user;
+            if (!targetUsername) {
+                showToast('Please enter your ChocoHub username', true);
+                return;
+            }
+            try {
+                const res = await fetch('/swap/create_duco_to_cc', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({
+                        from_user: user,
+                        amount_duco: amount,
+                        target_username: targetUsername
+                    })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    const memo = `SWAP CC for ${targetUsername}`;
+                    navigator.clipboard.writeText(memo);
+                    showToast(`✓ Request created! Memo copied: ${memo}`, false);
+                    document.getElementById('amount-input').value = '';
+                    document.getElementById('receiver-input').value = '';
+                    updateEstimate();
+                } else {
+                    showToast(data.message || 'Failed to create request', true);
+                }
+            } catch (err) {
+                showToast('Server error', true);
+            }
+        }
+        // XNO → CC
+        else if (fromValue === 'xno' && toValue === 'cc') {
+            const targetUsername = receiver || user;
+            if (!targetUsername) {
+                showToast('Please enter your ChocoHub username', true);
+                return;
+            }
+            try {
+                const res = await fetch('/swap/create_xno_to_cc', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({
+                        from_user: user,
+                        amount_cc: amount * rates.xno.cc, // backend expects amount_cc in CC, but user enters XNO amount. Actually we need to convert: amount_cc = amount_xno * 500000
+                        target_username: targetUsername
+                    })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    const memo = `SWAP CC for ${targetUsername}`;
+                    navigator.clipboard.writeText(memo);
+                    showToast(`✓ XNO→CC request created! Send ${amount} XNO to ${xnoReceiveAddress} with memo "${memo}"`, false);
+                    document.getElementById('amount-input').value = '';
+                    document.getElementById('receiver-input').value = '';
+                    updateEstimate();
+                } else {
+                    showToast(data.message || 'Failed to create XNO request', true);
+                }
+            } catch (err) {
+                showToast('Server error', true);
+            }
+        }
+        else {
+            showToast(`Swap from ${coinNames[fromValue]} to ${coinNames[toValue]} is not supported.`, true);
+        }
+    }
+
+    // Expose copy functions globally
+    window.copyMemo = copyMemo;
+    window.copyMemoXNO = copyMemoXNO;
+    window.copyAddress = copyAddress;
+
+    // Initialize selects
+    initCustomSelect('from-select', (value) => {
+        fromValue = value;
+        // Reset to valid pair if needed
+        if (fromValue === 'duco' && toValue !== 'cc') toValue = 'cc';
+        if (fromValue === 'xno' && toValue !== 'cc') toValue = 'cc';
+        if (fromValue === 'cc' && (toValue !== 'duco' && toValue !== 'xno')) toValue = 'duco';
+        // Update trigger of to-select to match toValue
+        const toContainer = document.getElementById('to-select');
+        const toOption = toContainer.querySelector(`.select-option[data-value="${toValue}"]`);
+        if (toOption) toContainer.querySelector('.select-trigger').innerHTML = toOption.innerHTML;
+        updateRateDisplay();
+        updateEstimate();
+        document.getElementById('amount-input').value = '';
+        document.getElementById('receiver-input').value = '';
+    });
+
+    initCustomSelect('to-select', (value) => {
+        // Validate pair
+        if (fromValue === 'cc' && (value !== 'duco' && value !== 'xno')) {
+            showToast('Only CC ↔ DUCO or CC ↔ XNO are allowed', true);
+            return;
+        }
+        if ((fromValue === 'duco' && value !== 'cc') || (fromValue === 'xno' && value !== 'cc')) {
+            showToast(`Only ${coinNames[fromValue]} → CC is supported`, true);
+            return;
+        }
+        toValue = value;
+        updateRateDisplay();
+        updateEstimate();
+        document.getElementById('amount-input').value = '';
+        document.getElementById('receiver-input').value = '';
+    });
+
+    document.getElementById('amount-input').addEventListener('input', updateEstimate);
+    document.getElementById('receiver-input').addEventListener('input', () => {
+        if (fromValue === 'duco' && toValue === 'cc') updateDucoToCCInfo();
+        if (fromValue === 'xno' && toValue === 'cc') updateXnoToCCInfo();
+    });
+    document.getElementById('swap-btn').addEventListener('click', performSwap);
+
+    (async () => {
+        await fetchXNOConfig();
+        await fetchBalance();
+        if (!localStorage.getItem('choco_user')) {
+            showToast('Redirecting to login...', true);
+            setTimeout(() => window.location.href = 'index.html', 1500);
+        }
+        updateRateDisplay();
+        setInterval(fetchBalance, 5000);
+    })();
+</script>
+</body>
+</html>
